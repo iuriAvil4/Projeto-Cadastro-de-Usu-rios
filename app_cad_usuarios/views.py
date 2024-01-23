@@ -1,29 +1,26 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Usuario
+from .forms import UsuarioForm
 
-# Create your views here.
 def home(request):
-    return render(request, 'usuarios/home.html')
+    if request.method == "POST":
+        form = UsuarioForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('usuarios')
+    else:
+        form = UsuarioForm()
+
+    return render(request, 'usuarios/home.html', {'form': form})
 
 def usuarios(request):
-    #SALVAR OS DADOS DA TELA PARA O BANCO A DADOS
-    novo_usuario = Usuario()
-    novo_usuario.nome = request.POST.get('nome')
-    novo_usuario.idade = request.POST.get('idade')
-    novo_usuario.save()
-
-    #EXIBIR TODOS OS USUARIOS EM OUTRA PAGINA
     usuarios = {
         'usuarios': Usuario.objects.all()
     }
-
-    #RETORNA OS DADOS PRA NOVA PAGINA
-    return render(request,'usuarios/usuarios.html', usuarios)
+    return render(request, 'usuarios/usuarios.html', usuarios)
 
 def usuarios_sem_entrada(request):
     usuarios = {
         'usuarios': Usuario.objects.all()
     }
-
-    # RETORNA OS DADOS PRA NOVA PAGINA
     return render(request, 'usuarios/usuarios.html', usuarios)
